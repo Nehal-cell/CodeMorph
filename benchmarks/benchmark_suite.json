@@ -1,0 +1,44 @@
+{
+  "functions": [
+    {
+      "name": "login_handler",
+      "code": "def login_handler(request):\n    data = request.json\n    username = data.get('username')\n    password = data.get('password')\n    if username == 'admin' and password == 'secret':\n        return {'status': 'success', 'token': 'token123'}\n    return {'status': 'unauthorized'}, 401",
+      "expected_role": "request_handler"
+    },
+    {
+      "name": "validate_email",
+      "code": "import re\ndef validate_email(email: str) -> bool:\n    pattern = r'^\\S+@\\S+\\.\\S+$'\n    return bool(re.match(pattern, email))",
+      "expected_role": "data_validator"
+    },
+    {
+      "name": "UserModel",
+      "code": "class UserModel(Base):\n    __tablename__ = 'users'\n    id = Column(Integer, primary_key=True)\n    username = Column(String(50), unique=True)\n    email = Column(String(100))",
+      "expected_role": "database_model"
+    },
+    {
+      "name": "calculate_compound_interest",
+      "code": "def calculate_compound_interest(principal, rate, time, n):\n    amount = principal * (1 + rate / n) ** (n * time)\n    interest = amount - principal\n    return interest",
+      "expected_role": "business_logic"
+    },
+    {
+      "name": "load_settings",
+      "code": "def load_settings(config_path):\n    with open(config_path, 'r') as f:\n        config = json.load(f)\n    return {\n        'DEBUG': config.get('debug', False),\n        'DATABASE_URL': config.get('db_url', 'sqlite:///:memory:')\n    }",
+      "expected_role": "configuration"
+    },
+    {
+      "name": "send_welcome_email_task",
+      "code": "@app.task\ndef send_welcome_email_task(user_id):\n    user = db.get_user(user_id)\n    email.send(user.email, 'Welcome to CodeMorph!')",
+      "expected_role": "task_definition"
+    },
+    {
+      "name": "test_addition",
+      "code": "def test_addition():\n    assert 1 + 1 == 2",
+      "expected_role": "test_case"
+    },
+    {
+      "name": "format_timestamp",
+      "code": "from datetime import datetime\ndef format_timestamp(ts):\n    return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')",
+      "expected_role": "utility"
+    }
+  ]
+}

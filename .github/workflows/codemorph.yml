@@ -1,0 +1,65 @@
+name: CodeMorph Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "Source framework/version to migrate from (e.g., flask, pandas, unittest, celery)"
+        required: true
+        default: "flask"
+      to:
+        description: "Destination framework/version to migrate to (e.g., fastapi, polars, pytest, dramatiq)"
+        required: true
+        default: "fastapi"
+      directory:
+        description: "Relative directory path containing the codebase"
+        required: true
+        default: "."
+      docker:
+        description: "Use Docker sandbox for tests (requires Docker enabled runner)"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install CodeMorph Package
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+
+      - name: Run Migration Pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          codemorph migrate \
+            --from "${{ inputs.from }}" \
+            --to "${{ inputs.to }}" \
+            ${{ inputs.docker && '--docker' || '--no-docker' }} \
+            "${{ inputs.directory }}"
+
+      - name: Create Migration Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "style(codemorph): automated migration from ${{ inputs.from }} to ${{ inputs.to }}"
+          title: "CodeMorph Automated Migration: ${{ inputs.from }} ➔ ${{ inputs.to }}"
+          branch: "codemorph/migrate-${{ inputs.from }}-to-${{ inputs.to }}"
+          body-path: "${{ inputs.directory }}/codemorph_report.md"
+          draft: true
