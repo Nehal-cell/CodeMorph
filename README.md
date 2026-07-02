@@ -113,8 +113,8 @@ pip install -e .
 ## Quickstart
 
 ```bash
-# 1. Navigate to your Python project
-cd your_project
+# 1. Use the built-in example to try CodeMorph immediately
+codemorph migrate --from flask --to fastapi ./example/flask_app
 
 # 2. Make sure you have tests (CodeMorph needs them)
 pytest  # should show some passing tests
